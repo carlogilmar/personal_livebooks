@@ -1,0 +1,103 @@
+# Have GPT-4 write a song
+
+```elixir
+Mix.install(
+  [
+    {:midiex, "~> 0.6.1"},
+    {:instructor, "~> 0.0.5"}
+  ],
+  config: [
+    instructor: [
+      adapter: Instructor.Adapters.OpenAI,
+      openai: [api_key: ""]
+    ]
+  ]
+)
+```
+
+## Section
+
+```elixir
+defmodule Song do
+  use Ecto.Schema
+  use Instructor.Validator
+
+  defmodule Message do
+    use Ecto.Schema
+    use Instructor.Validator
+
+    @doc """
+    ## Field Descriptions:
+    - message: a midi message as bytes, represented as a string with the three bytes (status, data 1, and data 2), e.g. "0x90,0x3C,0x40".
+    - duration: the duration for playing the note in ms
+    """
+    @primary_key false
+    embedded_schema do
+      field(:message, :string)
+      field(:duration, :integer)
+    end
+  end
+
+  @doc """
+  ## Field Descriptions:
+  - messages: an array of midi binary messages
+  """
+  @primary_key false
+  embedded_schema do
+    embeds_many(:messages, Message)
+  end
+end
+```
+
+```elixir
+{:ok, %{messages: messages}} =
+  Instructor.chat_completion(
+    model: "gpt-3.5-turbo",
+    response_model: Song,
+    max_retries: 3,
+    messages: [
+      %{
+        role: "user",
+        content: """
+        Your purpose is to write songs to be played through midi.
+
+        Write a super funky bass line in midi messages as bytes. Make sure it slaps.
+        """
+      }
+    ]
+  )
+```
+
+```elixir
+messages
+```
+
+```elixir
+alias Midiex.Listener
+alias Midiex.Message, as: M
+```
+
+```elixir
+out_port = Midiex.ports(~r/Garage/, :output) |> List.first()
+```
+
+```elixir
+# Make a connection
+out_conn = Midiex.open(out_port)
+```
+
+```elixir
+for %{message: message, duration: duration} <- messages do
+  message
+  |> String.split(",")
+  |> Enum.map(fn hex_byte ->
+    hex_byte
+    |> String.trim_leading("0x")
+    |> String.to_integer(16)
+  end)
+  |> :binary.list_to_bin()
+  |> then(&Midiex.send_msg(out_conn, &1))
+
+  :timer.sleep(duration)
+end
+```
