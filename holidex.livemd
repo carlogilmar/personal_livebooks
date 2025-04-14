@@ -1,0 +1,187 @@
+# Holidex Livebook
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.12.0"},
+  {:kino_vega_lite, "~> 0.1.10"},
+  {:kino_explorer, "~> 0.1.11"}
+])
+```
+
+## Connection Setup
+
+### 1. Run your local Holidex 🧑🏻‍💻
+
+We need to run our holidex as a node locally:
+
+```
+iex --sname holidex --cookie secret -S mix phx.server
+```
+
+And then keep your node name (it could be something like `holidex@JoseValim`)
+
+### 2. Smart Cell for Remote Execution 🔌
+
+`Remote Execution`
+For connect your LiveBook to an existing Node, you'll need a **Smart Cell**:
+
+1. Click the `Smart` button.
+2. Click the `Remote Execution` option and then you'll have this section available on your noteook.
+3. In the first input put your Node name: `holidex@JoseValim`.
+4. Click the `cookie` input to open a modal where you need to put the name `COOKIE` and the secret value `secret` (this values comes from your phoenix node).
+5. Inside the code box you can execute code direct in your Phoenix app. But if you try to call any variable outside you'll raise an error.
+6. To assign any data from the node, you can use the last input to set a variable to save the data and use it in other Elixir cells in your notebook.
+
+### Extract data from the Node 📍
+
+You can execute any module from Holidex inside the Remote Execution, but to be able to export and use it in this Livebook, you'll need to extract the data you need and assign to the variable `node_info`.
+
+<!-- livebook:{"attrs":"eyJhc3NpZ25fdG8iOiJub2RlX2luZm8iLCJjb2RlIjoiIyBFeHBsb3JlIHRoZSBkYXRhIGRpcmVjdCBmcm9tIEVUUyBcbmRhdGFfc2VydmVyID0gOmV0cy50YWIybGlzdCg6ZGF0YV9zZXJ2ZXJfcmVnaXN0ZXJlZF9uYW1lcylcbnNjaGVtYXNfYXZhaWxhYmxlcyA9IEVudW0ubWFwKGRhdGFfc2VydmVyLCBmbiB7c2NoZW1hLCBfbGl0c30gLT4gc2NoZW1hIGVuZClcblxuZGIgPSBcbmRhdGFfc2VydmVyIFxufD4gRW51bS5tYXAoZm4ge3NjaGVtYSwgX2xpdHN9IC0+IHtzY2hlbWEsIEhvbGlkZXguRGF0YVNlcnZlci5Db21tb24ubGlzdF9kYXRhKHNjaGVtYSl9IGVuZCkgXG58PiBNYXAubmV3KCkgXG5cbiMgRGF0YSBTZXJ2ZXIgUHJvY2Vzc2VzXG4jIDEuIEZpbmQgc3VwZXJ2aXNvciBwaWRcbnN1cGVydmlzb3IgPSA6XCJFbGl4aXIuSG9saWRleC5EYXRhU2VydmVyLlN1cGVydmlzb3JcIlxuZGF0YV9zZXJ2ZXJfcGlkID0gUHJvY2Vzcy53aGVyZWlzKHN1cGVydmlzb3IpXG4jIDIuIEdldCBjaGlsZCBwaWRzXG57OmxpbmtzLCBjaGlsZHN9ID0gUHJvY2Vzcy5pbmZvIGRhdGFfc2VydmVyX3BpZCwgOmxpbmtzXG4jIDMuIEdldCBwaWQgaW5mb3JtYXRpb25cbmRhdGFfc2VydmVyX2NoaWxkcyA9IGZvciBwaWQgPC0gY2hpbGRzLCBkbzogUHJvY2Vzcy5pbmZvKHBpZClcblxuXG5cbiMgU3VwZXJ2aXNpb24gdGhyZWUgb2YgRGF0YVNlcnZlclxuY2hpbGRzID0gU3VwZXJ2aXNvci53aGljaF9jaGlsZHJlbihkYXRhX3NlcnZlcl9waWQpXG5cbnJlY29yZHMgPSBcbiAgY2hpbGRzXG4gIHw+IEVudW0ubWFwKFxuICAgIGZuIHtwcm9jZXNzX25hbWUsIHBpZCwgdHlwZSwgX3Byb2Nlc3Nlc19saXN0fSAtPlxuICAgICAgaWYgdHlwZSA9PSA6c3VwZXJ2aXNvciBkb1xuICAgICAgICBjaGlsZHMgPSBTdXBlcnZpc29yLndoaWNoX2NoaWxkcmVuKHBpZClcbiAgICAgICAgRW51bS53aXRoX2luZGV4KGNoaWxkcywgZm4ge18sIGNoaWxkX3BpZCxfLFtjaGlsZF9uYW1lXX0sIGluZGV4IC0+IFxuICAgICAgICAgIGZyb20gPSBBdG9tLnRvX3N0cmluZyhwcm9jZXNzX25hbWUpXG4gICAgICAgICAgY2hpbGRfbmFtZSA9IEF0b20udG9fc3RyaW5nKGNoaWxkX25hbWUpXG4gICAgICAgICAgJXtmcm9tOiBmcm9tLCB0bzogXCIje2NoaWxkX25hbWV9LSN7aW5kZXh9XCJ9XG4gICAgICAgIGVuZClcbiAgICAgICAgXG4gICAgICBlbHNlXG4gICAgICAgIGZyb20gPSBBdG9tLnRvX3N0cmluZyhzdXBlcnZpc29yKVxuICAgICAgICB0byA9IEF0b20udG9fc3RyaW5nKHByb2Nlc3NfbmFtZSlcbiAgICAgICAgJXtmcm9tOiBmcm9tLCB0bzogdG99XG4gICAgICBlbmRcbiAgICBlbmQpXG4gIHw+IExpc3QuZmxhdHRlbigpIFxuXG5cbiMgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT1cbiMgTWFwIHRvIGV4cG9ydCBkYXRhIGZyb20gdGhpcyBub2RlIGFuZCB1c2UgaXQgaW4gdGhpcyBsaXZlYm9va1xuIyBub2RlX2luZm9cbiMgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT1cbiAgJXtcbiAgICBkYjogZGIsIFxuICAgIGRhdGFfc2VydmVyX2NoaWxkczogZGF0YV9zZXJ2ZXJfY2hpbGRzLFxuICAgIHJlY29yZHM6IHJlY29yZHNcbiAgfVxuIiwiY29va2llIjoiIiwiY29va2llX3NlY3JldCI6IkNPT0tJRSIsIm5vZGUiOiJob2xpZGV4QE1hY0Jvb2stUHJvLWRlLUNhcmxvLUdpbG1hciIsIm5vZGVfc2VjcmV0IjoiIiwibm9kZV9zZWNyZXRfdmFsdWUiOm51bGwsInVzZV9jb29raWVfc2VjcmV0Ijp0cnVlLCJ1c2Vfbm9kZV9zZWNyZXQiOmZhbHNlfQ","chunks":null,"kind":"Elixir.Kino.RemoteExecutionCell","livebook_object":"smart_cell"} -->
+
+```elixir
+require Kino.RPC
+node = :"holidex@MacBook-Pro-de-Carlo-Gilmar"
+Node.set_cookie(node, String.to_atom(System.fetch_env!("LB_COOKIE")))
+
+node_info =
+  Kino.RPC.eval_string(
+    node,
+    ~S"""
+    # Explore the data direct from ETS 
+    data_server = :ets.tab2list(:data_server_registered_names)
+    schemas_availables = Enum.map(data_server, fn {schema, _lits} -> schema end)
+
+    db = 
+    data_server 
+    |> Enum.map(fn {schema, _lits} -> {schema, Holidex.DataServer.Common.list_data(schema)} end) 
+    |> Map.new() 
+
+    # Data Server Processes
+    # 1. Find supervisor pid
+    supervisor = :"Elixir.Holidex.DataServer.Supervisor"
+    data_server_pid = Process.whereis(supervisor)
+    # 2. Get child pids
+    {:links, childs} = Process.info data_server_pid, :links
+    # 3. Get pid information
+    data_server_childs = for pid <- childs, do: Process.info(pid)
+
+
+
+    # Supervision three of DataServer
+    childs = Supervisor.which_children(data_server_pid)
+
+    records = 
+      childs
+      |> Enum.map(
+        fn {process_name, pid, type, _processes_list} ->
+          if type == :supervisor do
+            childs = Supervisor.which_children(pid)
+            Enum.with_index(childs, fn {_, child_pid,_,[child_name]}, index -> 
+              from = Atom.to_string(process_name)
+              child_name = Atom.to_string(child_name)
+              %{from: from, to: "#{child_name}-#{index}"}
+            end)
+            
+          else
+            from = Atom.to_string(supervisor)
+            to = Atom.to_string(process_name)
+            %{from: from, to: to}
+          end
+        end)
+      |> List.flatten() 
+
+
+    # ==============================================================
+    # Map to export data from this node and use it in this livebook
+    # node_info
+    # ==============================================================
+      %{
+        db: db, 
+        data_server_childs: data_server_childs,
+        records: records
+      }
+
+    """,
+    file: __ENV__.file
+  )
+```
+
+```elixir
+# Map all users to present in a table view
+# This cell execute elixir code outside the remote node
+
+users =
+  Enum.map(
+    node_info.db["users-0.1.2"],
+    fn user ->
+      %{
+        id: user.id,
+        name: user.name,
+        status: Atom.to_string(user.status),
+        email: user.email,
+        role: user.role_id
+      }
+    end
+  )
+```
+
+### Data Server Supervision Three
+
+The `DataServer` supervisor manages the links to the processes that we're using to store data. This section is to visualize this structure.
+
+Every register in the visualization correspond to a record stored.
+
+```elixir
+## Module to create a custom diagram
+defmodule HolidexBook.Mermaid do
+  def create_diagram(relations) do
+    graph =
+      relations
+      |> Enum.map(fn %{from: from, to: to} ->
+        "#{from}-->#{to};"
+      end)
+      |> Enum.join("\n")
+
+    """
+    graph LR;
+    #{graph}
+    """
+  end
+end
+
+supervisor = "DataServer.Supervisor"
+
+# We need to build the mermaid diagram from scratch  
+supervisor_childs =
+  Enum.map(
+    node_info.data_server_childs,
+    fn child ->
+      child_name = Atom.to_string(child[:registered_name])
+      %{from: supervisor, to: child_name}
+    end
+  )
+
+mermaid_diagram = HolidexBook.Mermaid.create_diagram(supervisor_childs ++ node_info.records)
+
+Kino.Mermaid.new(mermaid_diagram)
+```
+
+<!-- livebook:{"attrs":"eyJhc3NpZ25fdG8iOiIiLCJjb2RlIjoidXNlciA9ICV7aWQ6IFwiMjFmMTM5YzQtODYyNi00YjA4LWE2ZDUtZmUyNTgwMDEyNWY2XCJ9XG5cbns6b2ssIHJlc3VtZX0gPSBIb2xpZGV4LlVzZXIuUmVzdW1lLmZldGNoX3VzZXJfcmVzdW1lKHVzZXIpXG5cbkhvbGlkZXguRGF0YVNlcnZlci5SZXN1bWUuZGVsZXRlKHJlc3VtZSkiLCJjb29raWUiOiIiLCJjb29raWVfc2VjcmV0IjoiQ09PS0lFIiwibm9kZSI6ImhvbGlkZXhATWFjQm9vay1Qcm8tZGUtQ2FybG8tR2lsbWFyIiwibm9kZV9zZWNyZXQiOiIiLCJub2RlX3NlY3JldF92YWx1ZSI6bnVsbCwidXNlX2Nvb2tpZV9zZWNyZXQiOnRydWUsInVzZV9ub2RlX3NlY3JldCI6ZmFsc2V9","chunks":null,"kind":"Elixir.Kino.RemoteExecutionCell","livebook_object":"smart_cell"} -->
+
+```elixir
+require Kino.RPC
+node = :"holidex@MacBook-Pro-de-Carlo-Gilmar"
+Node.set_cookie(node, String.to_atom(System.fetch_env!("LB_COOKIE")))
+
+Kino.RPC.eval_string(
+  node,
+  ~S"""
+  user = %{id: "21f139c4-8626-4b08-a6d5-fe25800125f6"}
+
+  {:ok, resume} = Holidex.User.Resume.fetch_user_resume(user)
+
+  Holidex.DataServer.Resume.delete(resume)
+  """,
+  file: __ENV__.file
+)
+```
