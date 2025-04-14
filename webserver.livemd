@@ -18,6 +18,8 @@ Mix.install(
 
 ## 1. Writting a simple webserver
 
+![](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTriNujLAjjGBY-w25w5X-lA498Phy_Mdes9w&s)
+
 ```elixir
 defmodule MyWeb do
   use Plug.Builder
@@ -54,7 +56,6 @@ Kino.start_child!({Bandit, plug: MyWeb, port: 6789})
 ```
 
 22:42:40.961 [info] Running MyWeb with Bandit 1.6.11 at 0.0.0.0:6789 (http)
-
 ```
 
 <!-- livebook:{"output":true} -->
