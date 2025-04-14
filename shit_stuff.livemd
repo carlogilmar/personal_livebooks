@@ -2,6 +2,12 @@
 
 # LiveView Shit Stuff
 
+## Section
+
+![](files/BridgesSummit.png)
+
+![](files/file.png)
+
 ## Agents
 
 ```elixir
@@ -42,10 +48,6 @@ Counter.value()
 ```
 2
 ```
-
-![](files/BridgesSummit.png)
-
-<!-- livebook:{"break_markdown":true} -->
 
 
 
