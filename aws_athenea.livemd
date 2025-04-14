@@ -64,13 +64,13 @@ result2 =
 
 ## Visualizing geographic coordinates data using the Map Smart cell
 
-<!-- livebook:{"attrs":"eyJjZW50ZXIiOm51bGwsImxheWVycyI6W3siY2x1c3Rlcl9jb2xvcnMiOlsiIzUxYmJkNiIsIiNmMWYwNzUiLCIjZjI4Y2IxIl0sImNsdXN0ZXJfbWF4Ijo3NTAsImNsdXN0ZXJfbWluIjoxMDAsImNvb3JkaW5hdGVzX2Zvcm1hdCI6ImNvbHVtbnMiLCJsYXllcl9jb2xvciI6IiMwMDAwMDAiLCJsYXllcl9pZCI6InN0YXRpb25zIiwibGF5ZXJfb3BhY2l0eSI6MSwibGF5ZXJfcmFkaXVzIjo1LCJsYXllcl9zb3VyY2UiOiJyZXN1bHQyIiwibGF5ZXJfdHlwZSI6ImNpcmNsZSIsInNvdXJjZV9jb29yZGluYXRlcyI6bnVsbCwic291cmNlX2xhdGl0dWRlIjoibGF0aXR1ZGUiLCJzb3VyY2VfbG9uZ2l0dWRlIjoibG9uZ2l0dWRlIiwic291cmNlX3R5cGUiOiJ0YWJsZSJ9XSwibWxfYWxpYXMiOiJFbGl4aXIuTWFwTGlicmUiLCJzdHlsZSI6ImRlZmF1bHQiLCJ6b29tIjowfQ","chunks":null,"kind":"Elixir.KinoMapLibre.MapCell","livebook_object":"smart_cell"} -->
+<!-- livebook:{"attrs":"eyJjZW50ZXIiOm51bGwsImxheWVycyI6W3siYWN0aXZlIjp0cnVlLCJjbHVzdGVyX2NvbG9ycyI6WyIjNTFiYmQ2IiwiI2YxZjA3NSIsIiNmMjhjYjEiXSwiY2x1c3Rlcl9tYXgiOjc1MCwiY2x1c3Rlcl9taW4iOjEwMCwiY29vcmRpbmF0ZXNfZm9ybWF0IjoiY29sdW1ucyIsImxheWVyX2NvbG9yIjoiIzAwMDAwMCIsImxheWVyX2lkIjoic3RhdGlvbnMiLCJsYXllcl9vcGFjaXR5IjoxLCJsYXllcl9yYWRpdXMiOjUsImxheWVyX3NvdXJjZSI6InJlc3VsdDIiLCJsYXllcl9zb3VyY2VfcXVlcnkiOm51bGwsImxheWVyX3NvdXJjZV9xdWVyeV9zdHJpY3QiOm51bGwsImxheWVyX3R5cGUiOiJjaXJjbGUiLCJzb3VyY2VfY29vcmRpbmF0ZXMiOm51bGwsInNvdXJjZV9sYXRpdHVkZSI6ImxhdGl0dWRlIiwic291cmNlX2xvbmdpdHVkZSI6ImxvbmdpdHVkZSIsInNvdXJjZV90eXBlIjoidGFibGUifV0sIm1hcHRpbGVyX2tleSI6bnVsbCwibWFwdGlsZXJfa2V5X3NlY3JldCI6bnVsbCwibWxfYWxpYXMiOiJFbGl4aXIuTWFwTGlicmUiLCJzdHlsZSI6ImRlZmF1bHQiLCJ1c2VfbWFwdGlsZXJfa2V5X3NlY3JldCI6dHJ1ZSwiem9vbSI6MH0","chunks":null,"kind":"Elixir.KinoMapLibre.MapCell","livebook_object":"smart_cell"} -->
 
 ```elixir
 MapLibre.new()
 |> MapLibre.add_table_source("result2", result2, {:lng_lat, ["longitude", "latitude"]})
 |> MapLibre.add_layer(
-  id: "stations",
+  id: "result2_circle_1",
   source: "result2",
   type: :circle,
   paint: [circle_color: "#000000", circle_radius: 5, circle_opacity: 1]
