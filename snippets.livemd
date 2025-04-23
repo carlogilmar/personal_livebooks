@@ -1,0 +1,125 @@
+# SSH Snippets
+
+## SSH Fingerprint
+
+```elixir
+ssh_pub_key =
+  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCqZY2hilFDCxETrGYOjIUPCcy3xJbr7nG5NBHcxo2fZanxa/DbCGYQSBKQxXt5CjwnzpR1Nzh6NAmPX9691unymVt5os0eEZhtAzTmbr9o7q1hSN1iyFip1YJb8sxmOUQkfE/TDHs71X1A7P9CXhDBkMSPnCeK98sVxvcx81Rh9h05DQP1JLoFWCu1zFjXYLaGQcoG2tCfgnWc/GVemad7jgyuGTidAIPItwFTj9uN2EduoerYqWnSqOj8EYt/i2zQO7Z7PyjHP5UVfxXl7eAWDjCIdmnTcLy8LzzAScnG/fleygrZbQ+ojWPG87qviUwgZrfrR6U5R06vOxGPfZHf9miTe5h3+44w76AD0qKc7LCoeUvLSqFCgBaA8ImLtl7RK+47WD6zZ4F9vpfk0KMLXL/ft98U77YLdL7U4yJFE7bXqXTrXoAz8OznrdChnSuRuCfh0e1B8P41kXrbAfIpK5JBHKAODe3rb5QrqHOhmXRHIAyHvRmTOfsyKPDBuFc= cgilmar@estee.com"
+
+String.split(ssh_pub_key, " ", parts: 2)
+String.contains?(fingerprint, "SHA256:")
+#### Cortex
+
+# attrs = %{key: ssh_pub_key, name: "Personal", type: "Agent"}
+# Cortex.Agents.AgentKey.changeset(attrs) 
+```
+
+```elixir
+defmodule SSHKeyParser do
+  def get_fingerprint(key_string) do
+    [_type, base64_key, _title] = String.split(key_string, " ", parts: 3)
+
+    with {:ok, decoded} <- Base.decode64(base64_key) do
+      hash = :crypto.hash(:sha256, decoded)
+      fingerprint = Base.encode64(hash)
+      {:ok, "SHA256:" <> fingerprint}
+    end
+  end
+end
+
+SSHKeyParser.get_fingerprint(ssh_pub_key)
+# SHA256:6u9GqGgGDn5UmtXmUd/zr8DT+w0Mp9O9yr2YNGJXgSY 
+```
+
+`````code
+ssh_pub_key = 
+  "ssh-rsa AAABLABLBALBALBAoerYqWnSqOj8EYt/i2zQO7Z7PyjHP5UVfxXl7eAWDjCIdmnTcLy8LzzAScnG/fleygrZbQ+ojWPG87qviUwgZrfrR6U5R06vOxGPfZHf9miTe5h3+44w76AD0qKc7LCoeUvLSqFCgBaA8ImLtl7RK+47WD6zZ4F9vpfk0KMLXL/ft98U77YLdL7U4yJFE7bXqXTrXoAz8OznrdChnSuRuCfh0e1B8P41kXrbAfIpK5JBHKAODe3rb5QrqHOhmXRHIAyHvRmTOfsyKPDBuFc= cgilmar@estee.com"
+
+attrs = %{key: ssh_pub_key, name: "Personal", type: "Agent"}
+changeset = Cortex.Agents.AgentKey.changeset(attrs) 
+Cortex.Repo.insert(changeset)
+````
+`````
+
+```elixir
+ssh_pub_key =
+  "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCqZY2hilFDCxETrGYOjIUPCcy3xJbr7nG5NBHcxo2fZanxa/DbCYQSBKQxXt5CjwnzpR1Nzh6NAmPX9691unymVt5os0eEZhtAzTmbr9o7q1hSN1iyFip1YJb8sxmOUQkfE/TDHs71X1A7P9CXhDBkMSPnCeK98sVxvcx81Rh9h05DQP1JLoFWCu1zFjXYLaGQcoG2tCfgnWc/GVemad7jgyuGTidAIPItwFTj9uN2EduoerYqWnSqOj8EYt/i2zQO7Z7PyjHP5UVfxXl7eAWDjCIdmnTcLy8LzzAScnG/fleygrZbQ+ojWPG87qviUwgZrfrR6U5R06vOxGPfZHf9miTe5h3+44w76AD0qKc7LCoeUvLSqFCgBaA8ImLtl7RK+47WD6zZ4F9vpfk0KMLXL/ft98U77YLdL7U4yJFE7bXqXTrXoAz8OznrdChnSuRuCfh0e1B8P41kXrbAfIpK5JBHKAODe3rb5QrqHOhmXRHIAyHvRmTOfsyKPDBuFc= cgilmar@estee.com"
+
+# [{{type, _modulus, _exp} = key_struct, opts}] = :ssh_file.decode(ssh_pub_key, :public_key)
+#  der = :public_key.encode(:RSAPublicKey, key_struct)
+# fingerprint = :crypto.hash(:sha256, der) |> Base.encode64()
+
+# :ssh_file.decode(ssh_pub_key, :public_key)
+[{pubkey, _opts}] = :ssh_file.decode(ssh_pub_key, :openssh_key)
+:ssh.hostkey_fingerprint(:sha256, pubkey)
+```
+
+### ProxyAgent schema
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+attrs = %{
+  connected: true,
+  peer_address: "0.0.0.0",
+  last_connected: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+}
+
+status = Cortex.Agents.ProxyAgent.Status.changeset(attrs)
+
+
+agent = %{
+          name: "my agent",
+          description: "description",
+          status: %{ # no need to be the changeset
+            connected: true,
+            peer_address: "0.0.0.0",
+            last_connected: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+          }
+        }
+
+Cortex.Agents.ProxyAgent.changeset(agent)
+
+#### CRUD OPERATIONS
+
+
+attrs = %{
+          name: "my agent",
+          description: "description"
+          }
+
+{:ok, proxy_agent} = Cortex.ProxyAgents.create_proxy_agent(attrs)
+
+
+upd_attrs = %{
+          status: %{ 
+            connected: true,
+            peer_address: "127.0.0.1",
+            last_connected: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+          }
+        }
+
+        Cortex.ProxyAgents.update_proxy_agent(proxy_agent, attrs)
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Public Keys
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+proxy_agent = Cortex.ProxyAgents.get_proxy_agent_by_id("1dcd3ed2-758e-4d0f-b218-d3785664cde0")
+
+
+agent_key = %{
+  key:
+    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCSwFEU7mLawUtOCzJXKOtAp8iIdZ+9Mxfn1fCT2Nb0GUVM3bx4hu4byPqqDVNWsEYF37N5iIfxF0NjpUw5zBq1WKoTxTF3HVic3/0zSG0AaKxfHdcC4J2BwMLAjcfPPJI0NvngiUMvTOBMmGDheS32fh2rPSP/Kus9f6Tdc+1Z53Dq+uJsAqWrbeo2XszYdEzxUK24Ajdpn/uivo4Mv/eiAbt7DSMMkscqlUXJRdTYqXNJWouPVHssJKV10MUxiUYZ6zE6iSuu3PiK7jRq/8pjWikwTz+Jy/1LNE/3tL1L5HEAYREHf8pxRR5c5VFBWGH2H06OwHVt8H/kX5Aj3Qa7",
+  type: "ssh",
+  name: "Public Key 1",
+  fingerprint: "SHA256:jr/E0wkFojj4dHeozJNM+Q5ZX8kl6XvAYOkyYa4A1aa",
+  proxy_agent_id: proxy_agent.id
+}
+
+agent_key |> Cortex.ProxyAgents.store_agent_key()
+```
