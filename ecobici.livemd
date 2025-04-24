@@ -1,0 +1,122 @@
+# Ecobici CDMX Api
+
+```elixir
+Mix.install([
+  {:req, "~> 0.5.10"},
+  {:kino, "~> 0.15.3"}
+])
+```
+
+## Step 1: Ecobici Station information decoding
+
+```elixir
+ecobici_api = "https://gbfs.mex.lyftbikes.com/gbfs/en/station_information.json"
+res = Req.get!(ecobici_api)
+
+body = Jason.decode!(res.body)
+#body["data"]["stations"] 
+```
+
+## Step 2: Create station genserver
+
+```elixir
+defmodule Station do
+  @moduledoc false
+  use GenServer
+  
+  defstruct [:id, :external_id, :capacity, :lat, :lon, :name, :rental_methods, :short_name]
+
+  def start_link(attrs) do
+    station = match_struct(attrs)
+    GenServer.start_link(__MODULE__, station, name: {:via, Registry, {StationRegistry, station.id}})
+  end
+
+  def get_station(station_id) do
+    GenServer.call({:via, Registry, {StationRegistry, station_id}}, :get_station)
+  end
+
+  @impl true
+  def init(station) do
+    {:ok, station}
+  end
+
+  @impl true
+  def handle_call(:get_station, _from, station) do
+    {:reply, station, station}
+  end
+
+  defp match_struct(station_attrs) do
+    %__MODULE__{
+      id: station_attrs["station_id"],
+      external_id: station_attrs["external_id"],
+      capacity: station_attrs["capacity"], 
+      lat: station_attrs["lat"],
+      lon: station_attrs["lon"],
+      name: station_attrs["name"],
+      rental_methods: station_attrs["rental_methods"],
+      short_name: station_attrs["short_name"]
+    }
+  end
+  
+end
+
+
+```
+
+### Create the DynamicSupervisor and a StationManager
+
+```elixir
+## Define a Dynamic Supervisor
+defmodule StationSupervisor do
+  use DynamicSupervisor
+
+  def start_link(_args) do
+    DynamicSupervisor.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
+
+  @impl true
+  def init(:ok) do
+    DynamicSupervisor.init(strategy: :one_for_one)
+  end
+end
+
+## Simple module to create station process
+defmodule StationManager do
+  def start_station(attrs) do
+    spec = %{
+      id: Station,
+      start: {Station, :start_link, [attrs]},
+      restart: :transient,
+      type: :worker
+    }
+
+    DynamicSupervisor.start_child(StationSupervisor, spec)
+  end
+end
+```
+
+### Start registry and supervisor
+
+```elixir
+
+{:ok, _} = Registry.start_link(keys: :unique, name: StationRegistry)
+{:ok, supervisor} = StationSupervisor.start_link([])
+```
+
+### Create all the stations
+
+```elixir
+stations = body["data"]["stations"] 
+
+Enum.each(stations, fn %{"station_id" => station_id} = station ->
+  StationManager.start_station(station)
+  IO.puts "Station #{station_id} is created"
+  end)
+```
+
+```elixir
+stations = Registry.select(StationRegistry, [{{:"$1", :_, :_}, [], [:"$1"]}])
+
+data = Enum.map(stations, fn station_id -> Station.get_station(station_id) end)
+Kino.DataTable.new(data)
+```
