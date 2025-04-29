@@ -91,15 +91,28 @@ attrs = %{
 {:ok, proxy_agent} = Cortex.ProxyAgents.create_proxy_agent(attrs)
 
 
-upd_attrs = %{
-          status: %{ 
-            connected: true,
-            peer_address: "127.0.0.1",
-            last_connected: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
-          }
+new_attrs = %{
+        name: "Updated Proxy Agent",
+        status: %{
+          connected: true,
+          peer_address: "192.168.0.1",
+          last_connected: NaiveDateTime.truncate(NaiveDateTime.utc_now(), :second)
         }
+      }
 
-        Cortex.ProxyAgents.update_proxy_agent(proxy_agent, attrs)
+Cortex.ProxyAgents.update_proxy_agent(proxy_agent, new_attrs)
+
+### Update status and broadcast
+proxy_agent = Cortex.ProxyAgents.get_proxy_agent_by_id("3f34ef98-5c89-46a0-8485-6dd667304ad0")
+
+new_status = %{
+          connected: true,
+          peer_address: "192.168.0.2"
+      }
+
+Cortex.ProxyAgents.update_proxy_agent_status(proxy_agent, new_status)
+
+
 ```
 
 <!-- livebook:{"break_markdown":true} -->
